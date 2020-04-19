@@ -1,0 +1,6 @@
+{
+  "/api/*": {
+    "target": "https://d1q49aooac.execute-api.us-east-1.amazonaws.com/dev",
+    "changeOrigin": true
+  }
+}

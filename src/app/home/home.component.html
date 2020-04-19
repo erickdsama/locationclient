@@ -1,0 +1,52 @@
+<div class="row">
+  <div class="col-md-3 right-panel">
+    <div class="card">
+      <h4 class="card-header">
+        Vehiculos
+      </h4>
+      <div class="card-body">
+        <select #vehicleSelected (change)="loadLocation(vehicleSelected.value)" class="custom-select">
+          <option [value]="null">Selecciona un vehiculo</option>
+          <option  *ngFor="let vehicle of vehicles" [value]="vehicle.id" > {{vehicle.plate}} - {{vehicle.vin}} </option>
+        </select>
+        <div *ngIf="error_location" class="alert alert-danger mt-3 mb-0">{{error_location}}</div>
+      </div>
+      <a href="#" (click)="open(content)" class="card-link">Nuevo</a>
+    </div>
+  </div>
+  <div class="col-md-9 full-height no-padding" >
+    <app-map #mapComp></app-map>
+  </div>
+</div>
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Agregar Vehiculo</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="vehicleForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="vin">VIN</label>
+        <input type="text" formControlName="vin" id="vin" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.vin.errors }" />
+        <div *ngIf="submitted && f.vin.errors" class="invalid-feedback">
+          <div *ngIf="f.vin.errors.required">Vin requerido</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="plate">Placa</label>
+        <input type="plate" formControlName="plate" id="plate" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.plate.errors }" />
+        <div *ngIf="submitted && f.plate.errors" class="invalid-feedback">
+          <div *ngIf="f.plate.errors.required">Placa Requerida</div>
+        </div>
+      </div>
+      <button [disabled]="loading" class="btn btn-primary">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+        Save
+      </button>
+      <div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>
+      <div *ngIf="success" class="alert alert-info mt-3 mb-0">{{success}}</div>
+    </form>
+  </div>
+</ng-template>
