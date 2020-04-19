@@ -4,6 +4,7 @@ import {HttpClient, HttpErrorResponse} from "@angular/common/http";
 import {BehaviorSubject, Observable, throwError} from "rxjs";
 import {Vehicle} from "../interfaces/vehicle";
 import {environment} from "@env/environment";
+import {Auth} from "../interfaces";
 
 @Injectable({
   providedIn: 'root'
@@ -27,10 +28,25 @@ export class VehiclesService {
 
   private currentVehicleSubject: BehaviorSubject<Vehicle>;
   public currentVehicle: Observable<Vehicle>;
+  private userJWT: any;
 
+  parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  };
   constructor(private http: HttpClient) {
     this.currentVehicleSubject = new BehaviorSubject<Vehicle>(null);
     this.currentVehicle = this.currentVehicleSubject.asObservable();
+    let datatoken = JSON.parse(localStorage.getItem('token'));
+    let jwt = datatoken["jwt"];
+    let jwtData = this.parseJwt(jwt);
+    this.userJWT = jwtData.identity;
+    console.log(this.userJWT);
+
   }
 
   getVehicleByUser() {
@@ -44,7 +60,7 @@ export class VehiclesService {
     }
   addVehicle(vin, plate) {
     return this.http.post<any>(`${environment.baseURL}/vehicle`, {
-      vin, plate, user_id:1
+      vin, plate, user_id: this.userJWT.id
     })
       .pipe(map(vehicle => {
         return vehicle;
